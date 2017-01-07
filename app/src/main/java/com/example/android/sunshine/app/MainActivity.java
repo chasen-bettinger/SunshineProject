@@ -3,6 +3,7 @@ package com.example.android.sunshine.app;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -10,6 +11,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+
+import com.google.gson.JsonObject;
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +29,7 @@ import butterknife.ButterKnife;
 public class MainActivity extends ActionBarActivity {
 
     //@BindView(R.id.list_view_forecast) ListView forecastListView;
+    public static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,8 +94,30 @@ public class MainActivity extends ActionBarActivity {
                     ,R.id.list_item_forecast_textview
                     ,forecastEntries);
 
+            Ion.with(this)
+                    .load("api.openweathermap.org/data/2.5/weather?q=London")
+                    .asString()
+                    .setCallback(new FutureCallback<String>() {
+                        @Override
+                        public void onCompleted(Exception e, String result) {
+                            logResult(result);
+                        }
+                    });
+
             listView.setAdapter(forecastAdapter);
             return rootView;
         }
+
+
+    }
+    private static void logResult(String result) {
+        try {
+            JSONObject json = new JSONObject(result);
+            Log.v(LOG_TAG, json.toString());
+        }
+        catch (JSONException e) {
+            Log.wtf(LOG_TAG, e);
+        }
+
     }
 }
