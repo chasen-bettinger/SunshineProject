@@ -8,9 +8,19 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 
 public class MainActivity extends ActionBarActivity {
+
+    //@BindView(R.id.list_view_forecast) ListView forecastListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,6 +31,7 @@ public class MainActivity extends ActionBarActivity {
                     .add(R.id.container, new PlaceholderFragment())
                     .commit();
         }
+        ButterKnife.bind(this);
     }
 
     @Override
@@ -57,6 +68,24 @@ public class MainActivity extends ActionBarActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+
+            ListView listView = (ListView) rootView.findViewById(R.id.list_view_forecast);
+
+            ArrayList<String> forecastEntries = new ArrayList<String>();
+            forecastEntries.add("Today - Sunny - 88/63");
+            forecastEntries.add("Tomorrow - Foggy - 70/46");
+            forecastEntries.add("Wed - Cloudy - 72/63");
+            forecastEntries.add("Thurs - Rainy - 64/52");
+            forecastEntries.add("Fri - Foggy - 70/46");
+            forecastEntries.add("Sat - Sunny - 76/68");
+
+
+            ArrayAdapter<String> forecastAdapter = new ArrayAdapter<String>(getActivity()
+                    ,R.layout.list_item_forecast
+                    ,R.id.list_item_forecast_textview
+                    ,forecastEntries);
+
+            listView.setAdapter(forecastAdapter);
             return rootView;
         }
     }
