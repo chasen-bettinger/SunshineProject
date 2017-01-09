@@ -17,6 +17,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    buildTypes.each {
+        it.buildConfigField 'String', 'OPEN_WEATHER_API_KEY', "\"176610910ea5ccf5ce354d2a4a08cc22\""
+    }
 }
 
 dependencies {
