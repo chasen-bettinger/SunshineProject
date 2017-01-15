@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import org.json.JSONException;
+
 import java.util.ArrayList;
 
 /**
@@ -19,10 +21,18 @@ import java.util.ArrayList;
 
 public class ForecastFragment extends Fragment {
 
-    private ArrayAdapter<String> forecastAdapter;
     public static final String LOG_TAG = ForecastFragment.class.getSimpleName();
-    public static final String baseURL = "http://api.openweathermap.org/data/2.5/weather?q=London";
-    public static final String api_key = "&APPID=" + BuildConfig.OPEN_WEATHER_API_KEY;
+
+    private ArrayAdapter<String> forecastAdapter;
+    private static final String baseURL = "http://api.openweathermap.org/data/2.5/forecast?";
+    private static final String QUERY_PARAM = "q=";
+    private static final String CITY_PARAM = "id=";
+    private static final String zip_code = "27235";
+    private static final String country_code = "5462567";
+    private static final String api_key = "&APPID=" + BuildConfig.OPEN_WEATHER_API_KEY;
+
+
+
 
     public ForecastFragment() {
     }
@@ -65,10 +75,23 @@ public class ForecastFragment extends Fragment {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item)  {
 
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
+            StringBuilder stringBuilder = new StringBuilder(baseURL);
+            stringBuilder.append(CITY_PARAM)
+                    .append(country_code)
+                    .append(api_key);
+
+            FetchWeatherTask fetchWeatherTask = new FetchWeatherTask(getActivity(), stringBuilder.toString());
+            try {
+                String[] nice = fetchWeatherTask.getWeatherData();
+            }
+            catch (JSONException e) {
+
+            }
+
             return true;
         }
 
