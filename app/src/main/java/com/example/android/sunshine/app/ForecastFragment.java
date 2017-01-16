@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
@@ -24,6 +25,10 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnItemClick;
+
 /**
  * Created by Chasen on 1/7/2017.
  */
@@ -33,6 +38,7 @@ public class ForecastFragment extends Fragment {
     public static final String LOG_TAG = ForecastFragment.class.getSimpleName();
 
     private ArrayAdapter<String> forecastAdapter;
+    @BindView(R.id.list_view_forecast) ListView listView;
     private Context mContext;
 
 
@@ -43,6 +49,7 @@ public class ForecastFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        ButterKnife.bind(getActivity());
     }
 
     @Override
@@ -51,8 +58,6 @@ public class ForecastFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         mContext = rootView.getContext();
-
-        ListView listView = (ListView) rootView.findViewById(R.id.list_view_forecast);
 
         ArrayList<String> forecastEntries = new ArrayList<String>();
         forecastEntries.add("Today - Sunny - 88/63");
@@ -67,11 +72,17 @@ public class ForecastFragment extends Fragment {
                 , R.id.list_item_forecast_textview
                 , forecastEntries);
 
-        forecastAdapter.setNotifyOnChange(true);
+        // TODO: figure out what the hell is going on with the adapter being inflated
 
         listView.setAdapter(forecastAdapter);
         return rootView;
     }
+
+    @OnItemClick(R.id.list_view_forecast)
+    public void Test() {
+        Toast.makeText(mContext, "Test", Toast.LENGTH_SHORT).show();
+    }
+
 
 
     @Override
