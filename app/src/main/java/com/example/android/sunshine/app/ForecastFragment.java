@@ -4,11 +4,15 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -40,6 +44,7 @@ public class ForecastFragment extends Fragment {
     @BindView(R.id.list_view_forecast)
     ListView listView;
     private Context mContext;
+    private FetchWeatherTask fetchWeatherTask = new FetchWeatherTask();
 
 
     public ForecastFragment() {
@@ -71,7 +76,6 @@ public class ForecastFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        FetchWeatherTask fetchWeatherTask = new FetchWeatherTask();
         fetchWeatherTask.getWeatherData();
     }
 
@@ -82,7 +86,7 @@ public class ForecastFragment extends Fragment {
         startActivity(intent);
     }
 
-    /*
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.forecastfragment, menu);
@@ -92,13 +96,12 @@ public class ForecastFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         int id = item.getItemId();
-        if (id == R.id.action_refresh) {
-            return true;
+        if (id == R.id.map_menu_button) {
+            fetchWeatherTask.showMap();
         }
 
         return super.onOptionsItemSelected(item);
     }
-    */
 
     public class FetchWeatherTask {
 
@@ -107,9 +110,27 @@ public class ForecastFragment extends Fragment {
 
         private static final String baseURL = "http://api.openweathermap.org/data/2.5/forecast/daily?";
         private String[] weatherData;
+        private double longitude;
+        private double latitude;
 
         FetchWeatherTask() {
         }
+
+        public void showMap() {
+            Uri GPSUri = buildGPSUri(longitude, latitude);
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(GPSUri);
+            if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+                startActivity(intent);
+            }
+
+        }
+
+        private Uri buildGPSUri(double longitude, double latitude) {
+            final String GEO = "geo:";
+            return Uri.parse(GEO + latitude + "," + longitude);
+        }
+
 
         public void getWeatherData() {
 
@@ -142,6 +163,10 @@ public class ForecastFragment extends Fragment {
             final String OWM_MAIN = "main";
             final String OWM_TEMP_MAX = "max";
             final String OWM_TEMP_MIN = "min";
+            final String OWM_CITY = "city";
+            final String OWM_COORD = "coord";
+            final String OWM_LON = "lon";
+            final String OWM_LAT = "lat";
 
             Time time = new Time();
             time.setToNow();
@@ -151,6 +176,9 @@ public class ForecastFragment extends Fragment {
             time = new Time();
 
             JSONObject json = new JSONObject(jsonData);
+
+            longitude = json.getJSONObject(OWM_CITY).getJSONObject(OWM_COORD).getDouble(OWM_LON);
+            latitude = json.getJSONObject(OWM_CITY).getJSONObject(OWM_COORD).getDouble(OWM_LAT);
             JSONArray weatherData = json.getJSONArray(OWM_LIST);
 
             String[] weatherForWeek = new String[7];
@@ -166,15 +194,21 @@ public class ForecastFragment extends Fragment {
                 dateTime = time.setJulianDay(julianStartDay + i);
                 day = getReadableDateString(dateTime);
 
-                JSONObject currentItem = weatherData.getJSONObject(i);
+                JSONObject currentDay = weatherData.getJSONObject(i);
 
-                description = currentItem.getJSONArray(OWM_WEATHER).getJSONObject(0).getString(OWM_MAIN);
+                // Get description for current item. Ex. Snow, Rain, Cloudy
+                description = currentDay.getJSONArray(OWM_WEATHER).getJSONObject(0).getString(OWM_MAIN);
 
-                double high = currentItem.getJSONObject(OWM_TEMP).getDouble(OWM_TEMP_MAX);
-                double low = currentItem.getJSONObject(OWM_TEMP).getDouble(OWM_TEMP_MIN);
+                // Get high temperature for the current day
+                double high = currentDay.getJSONObject(OWM_TEMP).getDouble(OWM_TEMP_MAX);
+                // Get low temperature for the current day
+                double low = currentDay.getJSONObject(OWM_TEMP).getDouble(OWM_TEMP_MIN);
 
+                // Format the high and lows so they look nicer for the output
                 highAndLow = formatHighAndLows(high, low);
 
+                // Add to the weatherForWeek array that contains all of the weather information for the
+                // current week
                 weatherForWeek[i] = day + " - " + description + " - " + highAndLow;
             }
 

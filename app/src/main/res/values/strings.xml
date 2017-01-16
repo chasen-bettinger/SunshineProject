@@ -15,4 +15,6 @@
     <string name="temperature_key" translatable="false">temperature_key</string>
     <string name="temperature_default" translatable="false">imperial</string>
 
+    <string name="map_label">Map</string>
+
 </resources>
