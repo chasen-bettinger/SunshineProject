@@ -214,7 +214,7 @@ public class ForecastFragment extends Fragment {
             final String CNT = "7";
 
             final String UNIT_PARAM = "&units=";
-            final String UNIT = "imperial";
+            String unit = sharedPreferences.getString(getString(R.string.temperature_key), "imperial");
 
             final String api_key = "&APPID=" + BuildConfig.OPEN_WEATHER_API_KEY;
 
@@ -223,7 +223,7 @@ public class ForecastFragment extends Fragment {
             URL.append(QUERY_PARAM).append(zip_code)
                     .append(TYPE_PARAM).append(TYPE)
                     .append(CNT_PARAM).append(CNT)
-                    .append(UNIT_PARAM).append(UNIT)
+                    .append(UNIT_PARAM).append(unit)
                     .append(api_key);
 
             Log.v(LOG_TAG, zip_code);

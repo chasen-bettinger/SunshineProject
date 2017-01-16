@@ -11,4 +11,8 @@
     <string name="zip_code_key" translatable="false">zip_code</string>
     <string name="zip_code_default" translatable="false">27235</string>
 
+    <string name="temperature">Temperature</string>
+    <string name="temperature_key" translatable="false">temperature_key</string>
+    <string name="temperature_default" translatable="false">imperial</string>
+
 </resources>
