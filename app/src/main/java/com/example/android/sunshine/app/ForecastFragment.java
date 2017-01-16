@@ -2,6 +2,7 @@ package com.example.android.sunshine.app;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.format.Time;
 import android.util.Log;
@@ -13,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
@@ -38,7 +38,8 @@ public class ForecastFragment extends Fragment {
     public static final String LOG_TAG = ForecastFragment.class.getSimpleName();
 
     private ArrayAdapter<String> forecastAdapter;
-    @BindView(R.id.list_view_forecast) ListView listView;
+    @BindView(R.id.list_view_forecast)
+    ListView listView;
     private Context mContext;
 
 
@@ -49,13 +50,13 @@ public class ForecastFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        ButterKnife.bind(getActivity());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        ButterKnife.bind(this, rootView);
 
         mContext = rootView.getContext();
 
@@ -72,17 +73,16 @@ public class ForecastFragment extends Fragment {
                 , R.id.list_item_forecast_textview
                 , forecastEntries);
 
-        // TODO: figure out what the hell is going on with the adapter being inflated
-
         listView.setAdapter(forecastAdapter);
         return rootView;
     }
 
     @OnItemClick(R.id.list_view_forecast)
-    public void Test() {
-        Toast.makeText(mContext, "Test", Toast.LENGTH_SHORT).show();
+    public void sendWeatherData(int position) {
+        Intent intent = new Intent(getActivity(), DetailActivity.class);
+        intent.putExtra("weather_item", forecastAdapter.getItem(position));
+        startActivity(intent);
     }
-
 
 
     @Override
@@ -91,7 +91,7 @@ public class ForecastFragment extends Fragment {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item)  {
+    public boolean onOptionsItemSelected(MenuItem item) {
 
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
@@ -118,9 +118,10 @@ public class ForecastFragment extends Fragment {
 
         private String[] weatherData;
 
-        FetchWeatherTask(){}
+        FetchWeatherTask() {
+        }
 
-        public void getWeatherData(){
+        public void getWeatherData() {
 
             Ion.with(mContext)
                     .load(buildURL(baseURL))
@@ -163,7 +164,7 @@ public class ForecastFragment extends Fragment {
 
             String[] weatherForWeek = new String[7];
 
-            for(int i = 0; i < 7; i++) {
+            for (int i = 0; i < 7; i++) {
 
                 String day;
                 String description;
@@ -171,7 +172,7 @@ public class ForecastFragment extends Fragment {
 
                 long dateTime;
                 // Cheating to convert this to UTC time, which is what we want anyhow
-                dateTime = time.setJulianDay(julianStartDay+i);
+                dateTime = time.setJulianDay(julianStartDay + i);
                 day = getReadableDateString(dateTime);
 
                 JSONObject currentItem = weatherData.getJSONObject(i);
@@ -186,7 +187,7 @@ public class ForecastFragment extends Fragment {
                 weatherForWeek[i] = day + " - " + description + " - " + highAndLow;
             }
 
-            for(String s : weatherForWeek) {
+            for (String s : weatherForWeek) {
                 Log.v(LOG_TAG, s);
             }
 
@@ -208,7 +209,7 @@ public class ForecastFragment extends Fragment {
         }
 
         private Double kelvinToFarenheit(double tempInKelvin) {
-            Double tempInFarenheit = 9.0/5.0 * (tempInKelvin - 273.0) + 32.0;
+            Double tempInFarenheit = 9.0 / 5.0 * (tempInKelvin - 273.0) + 32.0;
             return tempInFarenheit;
         }
 
