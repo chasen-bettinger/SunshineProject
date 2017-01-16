@@ -1,10 +1,10 @@
 package com.example.android.sunshine.app;
 
 import android.app.Activity;
-import android.content.Context;
 import android.text.format.Time;
 import android.util.Log;
 
+import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 
@@ -21,9 +21,8 @@ import java.text.SimpleDateFormat;
 
 public class FetchWeatherTask {
 
-    private static Context mContext;
-    private static String URL;
-    private static String jsonData;
+    private  String URL;
+    private String jsonData;
     private Activity mActivity;
     public static final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
 
@@ -32,35 +31,29 @@ public class FetchWeatherTask {
         this.URL = URL;
     }
 
+    public String[] getWeatherData(){
 
-        /*
-        {"coord":{"lon":-0.13,"lat":51.51}
-        ,"weather":[{"id":500,"main":"Rain","description":"light rain","icon":"10d"}]
-        ,"base":"stations"
-        ,"main":{"temp":281.82,"pressure":1012,"humidity":93,"temp_min":281.15,"temp_max":282.15}
-        ,"visibility":10000
-        ,"wind":{"speed":7.7,"deg":190}
-        ,"clouds":{"all":75},"dt":1483969800
-        ,"sys":{"type":1,"id":5187
-        ,"message":0.2086
-        ,"country":"GB","sunrise":1483948990,"sunset":1483978386},"id":2643743,"name":"London","cod":200}
-
-         */
-
-    public String[] getWeatherData() throws JSONException{
+        String[] weatherData = null;
 
         Ion.with(mActivity)
-                .load(this.URL)
-                .asString()
-                .setCallback(new FutureCallback<String>() {
+                .load(URL)
+                .asJsonObject()
+                .setCallback(new FutureCallback<JsonObject>() {
                     @Override
-                    public void onCompleted(Exception e, String result) {
-                        jsonData = result;
+                    public void onCompleted(Exception e, JsonObject result) {
+                        jsonData = result.toString();
                     }
                 });
 
 
-        String[] weatherData = formatJSONData(jsonData);
+        try {
+            weatherData = formatJSONData(jsonData);
+        }
+        catch (JSONException e)
+        {
+            Log.wtf(LOG_TAG, e);
+        }
+
         return weatherData;
     }
 

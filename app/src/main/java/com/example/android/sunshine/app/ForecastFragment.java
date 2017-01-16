@@ -11,8 +11,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import org.json.JSONException;
-
 import java.util.ArrayList;
 
 /**
@@ -85,12 +83,9 @@ public class ForecastFragment extends Fragment {
                     .append(api_key);
 
             FetchWeatherTask fetchWeatherTask = new FetchWeatherTask(getActivity(), stringBuilder.toString());
-            try {
-                String[] nice = fetchWeatherTask.getWeatherData();
-            }
-            catch (JSONException e) {
 
-            }
+            String[] nice = fetchWeatherTask.getWeatherData();
+
 
             return true;
         }
