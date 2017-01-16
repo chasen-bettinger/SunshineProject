@@ -8,5 +8,7 @@
     <string name="menu_refresh">Refresh</string>
 
     <string name="zip_code">Zip Code</string>
+    <string name="zip_code_key" translatable="false">zip_code</string>
+    <string name="zip_code_default" translatable="false">27235</string>
 
 </resources>

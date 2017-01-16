@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
+
+    <EditTextPreference
+        android:title="@string/zip_code"
+        android:key="@string/zip_code_key"
+        android:defaultValue="@string/zip_code_default"
+        android:inputType="text"
+        android:singleLine="true"/>
+
+</PreferenceScreen>
