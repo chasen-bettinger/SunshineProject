@@ -3,13 +3,12 @@ package com.example.android.sunshine.app;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -60,21 +59,20 @@ public class ForecastFragment extends Fragment {
 
         mContext = rootView.getContext();
 
-        ArrayList<String> forecastEntries = new ArrayList<String>();
-        forecastEntries.add("Today - Sunny - 88/63");
-        forecastEntries.add("Tomorrow - Foggy - 70/46");
-        forecastEntries.add("Wed - Cloudy - 72/63");
-        forecastEntries.add("Thurs - Rainy - 64/52");
-        forecastEntries.add("Fri - Foggy - 70/46");
-        forecastEntries.add("Sat - Sunny - 76/68");
-
         forecastAdapter = new ArrayAdapter<String>(mContext
                 , R.layout.list_item_forecast
                 , R.id.list_item_forecast_textview
-                , forecastEntries);
+                , new ArrayList<String>());
 
         listView.setAdapter(forecastAdapter);
         return rootView;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        FetchWeatherTask fetchWeatherTask = new FetchWeatherTask();
+        fetchWeatherTask.getWeatherData();
     }
 
     @OnItemClick(R.id.list_view_forecast)
@@ -84,7 +82,7 @@ public class ForecastFragment extends Fragment {
         startActivity(intent);
     }
 
-
+    /*
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.forecastfragment, menu);
@@ -95,27 +93,19 @@ public class ForecastFragment extends Fragment {
 
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
-
-            FetchWeatherTask fetchWeatherTask = new FetchWeatherTask();
-            fetchWeatherTask.getWeatherData();
-
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
+    */
 
     public class FetchWeatherTask {
 
         public final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
 
-        private static final String baseURL = "http://api.openweathermap.org/data/2.5/forecast?";
-        private static final String QUERY_PARAM = "q=";
-        private static final String CITY_PARAM = "id=";
-        private static final String zip_code = "27235";
-        private static final String country_code = "4474221";
-        private static final String api_key = "&APPID=" + BuildConfig.OPEN_WEATHER_API_KEY;
 
+        private static final String baseURL = "http://api.openweathermap.org/data/2.5/forecast/daily?";
         private String[] weatherData;
 
         FetchWeatherTask() {
@@ -148,9 +138,10 @@ public class ForecastFragment extends Fragment {
 
             final String OWM_LIST = "list";
             final String OWM_WEATHER = "weather";
+            final String OWM_TEMP = "temp";
             final String OWM_MAIN = "main";
-            final String OWM_TEMP_MAX = "temp_max";
-            final String OWM_TEMP_MIN = "temp_min";
+            final String OWM_TEMP_MAX = "max";
+            final String OWM_TEMP_MIN = "min";
 
             Time time = new Time();
             time.setToNow();
@@ -164,7 +155,7 @@ public class ForecastFragment extends Fragment {
 
             String[] weatherForWeek = new String[7];
 
-            for (int i = 0; i < 7; i++) {
+            for (int i = 0; i < weatherForWeek.length; i++) {
 
                 String day;
                 String description;
@@ -179,8 +170,8 @@ public class ForecastFragment extends Fragment {
 
                 description = currentItem.getJSONArray(OWM_WEATHER).getJSONObject(0).getString(OWM_MAIN);
 
-                double high = currentItem.getJSONObject(OWM_MAIN).getDouble(OWM_TEMP_MAX);
-                double low = currentItem.getJSONObject(OWM_MAIN).getDouble(OWM_TEMP_MIN);
+                double high = currentItem.getJSONObject(OWM_TEMP).getDouble(OWM_TEMP_MAX);
+                double low = currentItem.getJSONObject(OWM_TEMP).getDouble(OWM_TEMP_MIN);
 
                 highAndLow = formatHighAndLows(high, low);
 
@@ -201,21 +192,42 @@ public class ForecastFragment extends Fragment {
 
         private String formatHighAndLows(double high, double low) {
 
-            int formattedHigh = (int) Math.round(kelvinToFarenheit(high));
-            int formattedLow = (int) Math.round(kelvinToFarenheit(low));
+            int formattedHigh = (int) Math.round(high);
+            int formattedLow = (int) Math.round(low);
 
             String formattedTemp = formattedHigh + " / " + formattedLow;
             return formattedTemp;
         }
 
-        private Double kelvinToFarenheit(double tempInKelvin) {
-            Double tempInFarenheit = 9.0 / 5.0 * (tempInKelvin - 273.0) + 32.0;
-            return tempInFarenheit;
-        }
 
         private String buildURL(String baseURL) {
+
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+
+            final String QUERY_PARAM = "q=";
+            String zip_code = sharedPreferences.getString(getString(R.string.zip_code_key), "38085");
+
+            final String TYPE_PARAM = "&type=";
+            final String TYPE = "accurate";
+
+            final String CNT_PARAM = "&cnt=";
+            final String CNT = "7";
+
+            final String UNIT_PARAM = "&units=";
+            final String UNIT = "imperial";
+
+            final String api_key = "&APPID=" + BuildConfig.OPEN_WEATHER_API_KEY;
+
             StringBuffer URL = new StringBuffer(baseURL);
-            URL.append(CITY_PARAM).append(country_code).append(api_key);
+
+            URL.append(QUERY_PARAM).append(zip_code)
+                    .append(TYPE_PARAM).append(TYPE)
+                    .append(CNT_PARAM).append(CNT)
+                    .append(UNIT_PARAM).append(UNIT)
+                    .append(api_key);
+
+            Log.v(LOG_TAG, zip_code);
+            Log.v(LOG_TAG, URL.toString());
             return URL.toString();
         }
 

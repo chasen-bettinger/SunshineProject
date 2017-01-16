@@ -18,15 +18,12 @@ public class DetailActivity extends ActionBarActivity {
 
     public static final String LOG_TAG = DetailActivity.class.getSimpleName();
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
