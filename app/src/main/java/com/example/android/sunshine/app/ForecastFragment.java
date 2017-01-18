@@ -7,6 +7,8 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.ShareActionProvider;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -45,6 +47,9 @@ public class ForecastFragment extends Fragment {
     ListView listView;
     private Context mContext;
     private FetchWeatherTask fetchWeatherTask = new FetchWeatherTask();
+    private ShareActionProvider mShareActionProvider;
+    private double longitude;
+    private double latitude;
 
 
     public ForecastFragment() {
@@ -90,47 +95,50 @@ public class ForecastFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.forecastfragment, menu);
+
+        MenuItem share = menu.findItem(R.id.menu_item_share);
+
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(share);
+
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
         int id = item.getItemId();
-        if (id == R.id.map_menu_button) {
-            fetchWeatherTask.showMap();
+
+
+        switch (id) {
+            case R.id.map_menu_button: showMap();
+                break;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void showMap() {
+        Uri GPSUri = buildGPSUri(longitude, latitude);
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(GPSUri);
+        if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+            startActivity(intent);
+        }
+    }
+
+    private Uri buildGPSUri(double longitude, double latitude) {
+        final String GEO = "geo:";
+        return Uri.parse(GEO + latitude + "," + longitude);
     }
 
     public class FetchWeatherTask {
 
         public final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
 
-
         private static final String baseURL = "http://api.openweathermap.org/data/2.5/forecast/daily?";
         private String[] weatherData;
-        private double longitude;
-        private double latitude;
 
         FetchWeatherTask() {
         }
-
-        public void showMap() {
-            Uri GPSUri = buildGPSUri(longitude, latitude);
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(GPSUri);
-            if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
-                startActivity(intent);
-            }
-
-        }
-
-        private Uri buildGPSUri(double longitude, double latitude) {
-            final String GEO = "geo:";
-            return Uri.parse(GEO + latitude + "," + longitude);
-        }
-
 
         public void getWeatherData() {
 
