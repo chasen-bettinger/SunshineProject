@@ -87,7 +87,7 @@ public class DetailActivity extends ActionBarActivity {
 
         @Override
         public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-            inflater.inflate(R.menu.forecastfragment, menu);
+            inflater.inflate(R.menu.detailfragment, menu);
 
             MenuItem menuItem = menu.findItem(R.id.menu_item_share);
 
@@ -105,7 +105,7 @@ public class DetailActivity extends ActionBarActivity {
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
             shareIntent.setType("text/plain");
-            shareIntent.putExtra(Intent.EXTRA_TEXT, forecastText + SHARE_HASHTAG);
+            shareIntent.putExtra(Intent.EXTRA_TEXT, forecastText.getText() + SHARE_HASHTAG);
             return shareIntent;
         }
 
